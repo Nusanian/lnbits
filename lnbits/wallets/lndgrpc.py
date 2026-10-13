@@ -28,6 +28,7 @@ from lnbits.wallets.lnd_grpc_files.lightning_pb2 import (
     InvoiceSubscription,
     Payment,
     PaymentFailureReason,
+    PaymentHash,
 )
 from lnbits.wallets.lnd_grpc_files.lightning_pb2_grpc import LightningStub
 from lnbits.wallets.lnd_grpc_files.router_pb2 import (
@@ -240,8 +241,8 @@ class LndWallet(Wallet):
                 # this may happen if we switch between backend wallets
                 # that use different checking_id formats
                 raise ValueError
-            req = LookupInvoiceMsg(payment_hash=r_hash)
-            res: Invoice = await self.invoices_rpc.LookupInvoiceV2(req)
+            req = PaymentHash(r_hash=r_hash)
+            res: Invoice = await self.rpc.LookupInvoice(req)
         except grpc.aio.AioRpcError as exc:
             logger.warning(
                 f"LndWallet.get_invoice_status grpc exception: {exc.details()}"
